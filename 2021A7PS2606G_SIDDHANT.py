@@ -1,18 +1,25 @@
 from SetCoveringProblemCreator import *
 import random
 import time
+import math
 import csv
 import numpy as np
 from typing import List, Set, Tuple
+
+#added to ensure reproducibility
+def set_random_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
 
 def calculate_fitness(individual: List[int], subsets: List[Set[int]], universe_size: int) -> float:
     covered = set().union(*[subsets[i] for i, gene in enumerate(individual) if gene])
     num_selected = sum(individual)
     coverage = len(covered)
-    
+
     if coverage < universe_size:
         return 100 * (coverage / universe_size)  # Partial coverage
-    return 100 + 10000 * (1 - (num_selected / len(subsets)))  # Full coverage, favor fewer subsets
+    else: 
+        return 100 + 10000 * (1 - (num_selected / len(subsets)))  # Full coverage, favor fewer subsets
 
 def tournament_selection(population: List[List[int]], fitness_values: List[float], tournament_size: int) -> List[int]:
     selected = random.sample(range(len(population)), tournament_size)
@@ -136,18 +143,20 @@ def genetic_algorithm_improved(subsets: List[Set[int]], universe_size: int, popu
 
 def main():
     roll_no = "2021A7PS2606G"
+    set_random_seed(10)
     scp = SetCoveringProblemCreator()
     listOfSubsets = scp.ReadSetsFromJson("scp_test.json")
-    
+
     #Best Parameters
     universe_size = 100
     population_size = 1000
     generations = 1000
     mutation_rate = 0.02
-    elitism_percentage = 0.05 #between 0 and 1
+    elitism_percentage = 0.2 #between 0 and 1
     tournament_size = 4
-
-    best_solution, fitness_value, time_taken = genetic_algorithm_improved(listOfSubsets, universe_size, population_size, generations, tournament_size, mutation_rate, elitism_percentage)        
+    
+    best_solution, fitness_value, time_taken = genetic_algorithm_improved(listOfSubsets, universe_size, population_size, generations, tournament_size, mutation_rate, elitism_percentage)
+        
     print(f"Roll no: {roll_no}")
     print(f"Number of subsets in scp_test.json file: {len(listOfSubsets)}")
     print("Solution:")
